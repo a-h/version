@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -13,6 +14,9 @@ func main() {
 	r.HandleFunc("/", helloHandler)
 	r.HandleFunc("/Version", versionHandler)
 	r.HandleFunc("/version", versionHandler)
+
+	fmt.Printf("Starting up application version %s\n", version)
+
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
 
