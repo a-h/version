@@ -4,6 +4,6 @@ version=`git tag | tail --lines 1`
 cat << EOF > version_linux.go
 package main
 
-//go:generate bash ./get_version.sh
+//go:generate bash ./get_version_linux.sh
 var version = "$version"
 EOF

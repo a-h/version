@@ -5,6 +5,6 @@ $version = $version.Trim()
 @"
 package main
 
-//go:generate powershell .\get_version.ps1
+//go:generate powershell .\get_version_windows.ps1
 var version = "$version"
 "@ | Out-File -Encoding ASCII -FilePath version_windows.go
