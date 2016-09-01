@@ -1,5 +1,5 @@
 # Get the version.
-version=`git tag -l "v*" | tail -n 1`
+version=`git describe --tags --long`
 # Write out the package.
 cat << EOF > version_darwin.go
 package main

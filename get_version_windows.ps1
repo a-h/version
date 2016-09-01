@@ -1,5 +1,5 @@
 # Get the version.
-$version = &("C:\Program Files\Git\cmd\git.exe") tag -l "v*" | Select-Object -Last 1
+$version = &("C:\Program Files\Git\cmd\git.exe") describe --tags --long
 $version = $version.Trim()
 # Write out the package.
 @"
