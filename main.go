@@ -14,6 +14,8 @@ func main() {
 	r.HandleFunc("/", helloHandler)
 	r.HandleFunc("/Version", versionHandler)
 	r.HandleFunc("/version", versionHandler)
+	r.HandleFunc("/version/", versionHandler)
+	r.HandleFunc("/Version/", versionHandler)
 
 	fmt.Printf("Starting up application version %s\n", version)
 
