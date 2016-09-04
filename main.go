@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"log"
@@ -9,13 +10,21 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var versionFlag = flag.Bool("v", false, "Displays the version and then quits.")
+
 func main() {
+	flag.Parse()
+
+	// If the version flag is set, print the version and quit.
+	if *versionFlag {
+		fmt.Println(version)
+		return
+	}
+
+	// Otherwise, start the web server.
 	r := mux.NewRouter()
 	r.HandleFunc("/", helloHandler)
-	r.HandleFunc("/Version", versionHandler)
 	r.HandleFunc("/version", versionHandler)
-	r.HandleFunc("/version/", versionHandler)
-	r.HandleFunc("/Version/", versionHandler)
 
 	fmt.Printf("Starting up application version %s\n", version)
 
