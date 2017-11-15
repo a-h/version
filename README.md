@@ -9,3 +9,9 @@
     * The `version_PLATFORM.go` file will be updated with data from the tag.
 * Build!
   * `go build`
+  
+# A better way?
+
+There's no need to use Go Generate, you can use `ldflags` instead.
+
+https://www.atatus.com/blog/golang-auto-build-versioning/
