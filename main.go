@@ -76,9 +76,10 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 }
 
 type CLI struct {
-	Check CheckCommand `cmd:"check" help:"Check that the version has been properly updated."`
-	Set   SetCommand   `cmd:"set" help:"Update the version number file if needed."`
-	Push  PushCommand  `cmd:"push" help:"Push an updated tag to git."`
+	Check   CheckCommand   `cmd:"check" help:"Check that the version has been properly updated."`
+	Set     SetCommand     `cmd:"set" help:"Update the version number file if needed."`
+	Push    PushCommand    `cmd:"push" help:"Push an updated tag to git."`
+	Version VersionCommand `cmd:"version" help:"Print the version number."`
 }
 
 func main() {
