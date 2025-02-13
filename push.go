@@ -9,6 +9,7 @@ import (
 
 type PushCommand struct {
 	DefaultArgs `embed:""`
+	Prefix      string `help:"The prefix to use for the version, e.g. v" default:""`
 }
 
 func (c PushCommand) Run(ctx context.Context) (err error) {
@@ -35,8 +36,8 @@ func (c PushCommand) Run(ctx context.Context) (err error) {
 	}
 
 	// Push the tag.
-	if !strings.HasPrefix(updated, "v") {
-		updated = "v" + updated
+	if c.Prefix != "" && !strings.HasPrefix(updated, c.Prefix) {
+		updated = c.Prefix + updated
 	}
 	return pushTag(updated)
 }

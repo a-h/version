@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 )
 
@@ -14,8 +15,13 @@ func (c SetCommand) Run(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	if updated == current {
+	if updated == current && current != "" {
+		fmt.Printf("No change, current version is %q\n", current)
 		return nil
 	}
-	return os.WriteFile(c.DefaultArgs.Filename, []byte(updated), 0644)
+	if err := os.WriteFile(c.DefaultArgs.Filename, []byte(updated), 0644); err != nil {
+		return err
+	}
+	fmt.Printf("Updated %q from %q to %q\n", c.DefaultArgs.Filename, current, updated)
+	return nil
 }
