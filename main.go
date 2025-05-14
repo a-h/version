@@ -58,6 +58,10 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 	}
 	current = strings.TrimSpace(string(currentFileBytes))
 
+	// Read the current count.
+	var currentCount int
+	fmt.Sscanf(current, da.Template, &currentCount)
+
 	count, err := getCommitCount()
 	if err != nil {
 		return "", "", fmt.Errorf("failed to get commit count: %w", err)
@@ -66,8 +70,9 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 	if err != nil {
 		return "", "", fmt.Errorf("failed to check dirty status: %w", err)
 	}
-	if dirty {
-		// If there are changes to be committed, then the version number will be incremented.
+	if currentCount != count || dirty {
+		// If there are changes to be committed, then the version number will be incremented, so the count will have to
+		// committed.
 		count++
 	}
 	updated = fmt.Sprintf(da.Template, count)
