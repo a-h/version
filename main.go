@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -13,7 +14,7 @@ import (
 )
 
 type DefaultArgs struct {
-	Template string `help:"The template to use for the version." default:"0.0.%d"`
+	Template string `help:"The template to use for the version, ignored if a .version-template file is present." default:"0.0.%d"`
 	Filename string `help:"The name of the file to write the version to." default:".version"`
 	FirstRun bool   `help:"Use to create the version file." default:"false"`
 }
@@ -58,9 +59,19 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 	}
 	current = strings.TrimSpace(string(currentFileBytes))
 
+	// Get the template, either from the command line or from a .version-template file.
+	template := da.Template
+	templateFileBytes, err := os.ReadFile(filepath.Join(filepath.Dir(da.Filename), ".version-template"))
+	if err != nil && !errors.Is(err, os.ErrNotExist) {
+		return "", "", fmt.Errorf("failed to read version template file: %w", err)
+	}
+	if len(templateFileBytes) > 0 {
+		template = strings.TrimSpace(string(templateFileBytes))
+	}
+
 	// Read the current count.
 	var currentCount int
-	fmt.Sscanf(current, da.Template, &currentCount)
+	fmt.Sscanf(current, template, &currentCount)
 
 	count, err := getCommitCount()
 	if err != nil {
@@ -75,7 +86,7 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 		// committed.
 		count++
 	}
-	updated = fmt.Sprintf(da.Template, count)
+	updated = fmt.Sprintf(template, count)
 
 	return current, updated, nil
 }
