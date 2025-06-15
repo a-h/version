@@ -35,3 +35,19 @@ Pushes a tag to git. If the `--prefix` flag is used, the version will be prefixe
 ```
 version push
 ```
+
+## Tasks
+
+### version
+
+```bash
+go run . set
+```
+
+### push
+
+Push a new release tag.
+
+```bash
+go run . push
+```

@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
   };
 
   outputs = { self, nixpkgs }:
@@ -26,7 +26,9 @@
         src = ./.;
         go = pkgs.go;
         vendorHash = "sha256-tARJMLmO7+T1mwtJQSDZgV4KQlgGCpNYySP+Ik0jP44=";
-        CGO_ENABLED = 0;
+        env = {
+          CGO_ENABLED = 0;
+        };
         flags = [
           "-trimpath"
         ];

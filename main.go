@@ -82,9 +82,9 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 
 type CLI struct {
 	Check   CheckCommand   `cmd:"check" help:"Check that the version has been properly updated. Returns a human readable message."`
-	Get     GetCommand     `cmd:"get" help:"Get the version number, fails if the version file is not up-to-date."`
+	Get     GetCommand     `cmd:"get" help:"Get the version number."`
 	Set     SetCommand     `cmd:"set" help:"Update the version number file if needed."`
-	Push    PushCommand    `cmd:"push" help:"Push an updated tag to git."`
+	Push    PushCommand    `cmd:"push" help:"Push an updated tag to git, fails if the .version file is not up-to-date."`
 	Version VersionCommand `cmd:"version" help:"Print the version number."`
 }
 
