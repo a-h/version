@@ -30,10 +30,20 @@ version set
 
 ### push
 
-Pushes a tag to git. If the `--prefix` flag is used, the version will be prefixed, e.g. with a v.
+Pushes a tag to git.
+
+The tag prefix is inferred from existing tags: if the latest tag is prefixed (e.g. `v0.0.2`), the new tag uses the same prefix. When the repository has no tags, the prefix defaults to `v` to match Go's module versioning convention.
+
+This default changed: previous versions pushed an unprefixed tag (e.g. `0.0.1`) when no `--prefix` was given. To push unprefixed tags, pass `--prefix ""`.
+
+The `--prefix` flag overrides the inferred prefix. If the chosen prefix differs from the prefix used by existing tags, the push fails to prevent an inconsistent tag history. Use `--force` to push anyway.
 
 ```
 version push
+```
+
+```
+version push --prefix "" --force
 ```
 
 ## Tasks
