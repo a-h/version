@@ -44,10 +44,15 @@ func (c PushCommand) Run(ctx context.Context) (err error) {
 	if err != nil {
 		return err
 	}
-	if prefix != "" && !strings.HasPrefix(updated, prefix) {
-		updated = prefix + updated
+	return pushTag(buildTag(prefix, updated))
+}
+
+func buildTag(prefix, version string) string {
+	i := strings.IndexAny(version, "0123456789")
+	if i < 0 {
+		i = len(version)
 	}
-	return pushTag(updated)
+	return prefix + version[i:]
 }
 
 // resolvePrefix determines the tag prefix to use, preferring an explicit
@@ -69,9 +74,30 @@ func resolvePrefix(flag *string, force bool, existing string, hasTags bool) (pre
 	return "v", nil
 }
 
-// getLatestTagPrefix returns the non-numeric leading characters of the
-// highest-versioned existing tag. hasTags is false when the repository has no
-// tags.
+// inferPrefix returns the most common non-numeric leading prefix across tags.
+// hasTags is false when tags is empty.
+func inferPrefix(tags []string) (prefix string, hasTags bool) {
+	counts := map[string]int{}
+	for _, tag := range tags {
+		if tag == "" {
+			continue
+		}
+		counts[leadingPrefix(tag)]++
+	}
+	if len(counts) == 0 {
+		return "", false
+	}
+	var best string
+	for p, c := range counts {
+		if c > counts[best] {
+			best = p
+		}
+	}
+	return best, true
+}
+
+// getLatestTagPrefix returns the inferred tag prefix from existing tags.
+// hasTags is false when the repository has no tags.
 func getLatestTagPrefix() (prefix string, hasTags bool, err error) {
 	gitPath, err := exec.LookPath("git")
 	if err != nil {
@@ -83,10 +109,8 @@ func getLatestTagPrefix() (prefix string, hasTags bool, err error) {
 		return "", false, fmt.Errorf("failed to run git: %w", err)
 	}
 	tags := strings.Split(strings.TrimSpace(string(output)), "\n")
-	if len(tags) == 0 || tags[0] == "" {
-		return "", false, nil
-	}
-	return leadingPrefix(tags[0]), true, nil
+	prefix, hasTags = inferPrefix(tags)
+	return prefix, hasTags, nil
 }
 
 // leadingPrefix returns the leading characters of tag that precede the first
