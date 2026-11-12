@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -20,31 +19,21 @@ type DefaultArgs struct {
 }
 
 func isDirty() (dirty bool, err error) {
-	gitPath, err := exec.LookPath("git")
+	output, err := runGit("status", "--porcelain")
 	if err != nil {
-		return false, fmt.Errorf("failed to find git on path: %w", err)
-	}
-	cmd := exec.Command(gitPath, "status", "--porcelain")
-	output, err := cmd.Output()
-	if err != nil {
-		return false, fmt.Errorf("failed to run git: %w", err)
+		return false, fmt.Errorf("failed to get working tree status: %w", err)
 	}
 	return len(strings.TrimSpace(string(output))) > 0, nil
 }
 
 func getCommitCount() (count int, err error) {
-	gitPath, err := exec.LookPath("git")
+	output, err := runGit("rev-list", "main", "--count")
 	if err != nil {
-		return 0, fmt.Errorf("failed to find git on path: %w", err)
-	}
-	cmd := exec.Command(gitPath, "rev-list", "main", "--count")
-	output, err := cmd.Output()
-	if err != nil {
-		return 0, fmt.Errorf("failed to run git: %w", err)
+		return 0, fmt.Errorf("failed to count commits on main: %w", err)
 	}
 	count, err = strconv.Atoi(strings.TrimSpace(string(output)))
 	if err != nil {
-		return 0, fmt.Errorf("failed to parse git output: %w", err)
+		return 0, fmt.Errorf("failed to parse commit count %q: %w", strings.TrimSpace(string(output)), err)
 	}
 	return count, nil
 }
@@ -75,11 +64,11 @@ func (da DefaultArgs) GetVersion() (current, updated string, err error) {
 
 	count, err := getCommitCount()
 	if err != nil {
-		return "", "", fmt.Errorf("failed to get commit count: %w", err)
+		return "", "", err
 	}
 	dirty, err := isDirty()
 	if err != nil {
-		return "", "", fmt.Errorf("failed to check dirty status: %w", err)
+		return "", "", err
 	}
 	if currentCount != count || dirty {
 		// If there are changes to be committed, then the version number will be incremented, so the count will have to

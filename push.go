@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"os/exec"
 	"strings"
 )
 
@@ -99,14 +98,9 @@ func inferPrefix(tags []string) (prefix string, hasTags bool) {
 // getLatestTagPrefix returns the inferred tag prefix from existing tags.
 // hasTags is false when the repository has no tags.
 func getLatestTagPrefix() (prefix string, hasTags bool, err error) {
-	gitPath, err := exec.LookPath("git")
+	output, err := runGit("tag", "--sort=-v:refname")
 	if err != nil {
-		return "", false, fmt.Errorf("failed to find git on path: %w", err)
-	}
-	cmd := exec.Command(gitPath, "tag", "--sort=-v:refname")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", false, fmt.Errorf("failed to run git: %w", err)
+		return "", false, fmt.Errorf("failed to list tags: %w", err)
 	}
 	tags := strings.Split(strings.TrimSpace(string(output)), "\n")
 	prefix, hasTags = inferPrefix(tags)
@@ -125,30 +119,21 @@ func leadingPrefix(tag string) (prefix string) {
 }
 
 func getBranch() (branch string, err error) {
-	gitPath, err := exec.LookPath("git")
+	output, err := runGit("branch", "--show-current")
 	if err != nil {
-		return "", fmt.Errorf("failed to find git on path: %w", err)
-	}
-	cmd := exec.Command(gitPath, "branch", "--show-current")
-	output, err := cmd.Output()
-	if err != nil {
-		return "", fmt.Errorf("failed to run git: %w", err)
+		return "", fmt.Errorf("failed to get current branch: %w", err)
 	}
 	return strings.TrimSpace(string(output)), nil
 }
 
 func pushTag(tag string) (err error) {
-	gitPath, err := exec.LookPath("git")
+	_, err = runGit("tag", tag)
 	if err != nil {
-		return fmt.Errorf("failed to find git on path: %w", err)
+		return fmt.Errorf("failed to create tag %q: %w", tag, err)
 	}
-	cmd := exec.Command(gitPath, "tag", tag)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to run git: %w", err)
-	}
-	cmd = exec.Command(gitPath, "push", "origin", tag)
-	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("failed to run git: %w", err)
+	_, err = runGit("push", "origin", tag)
+	if err != nil {
+		return fmt.Errorf("failed to push tag %q to origin: %w", tag, err)
 	}
 	return nil
 }
